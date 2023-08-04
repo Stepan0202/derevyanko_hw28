@@ -1,0 +1,24 @@
+{
+  "name": "derevyanko_hw28",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "sass": "sass --watch scss:css"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Stepan0202/derevyanko_hw28.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Stepan0202/derevyanko_hw28/issues"
+  },
+  "homepage": "https://github.com/Stepan0202/derevyanko_hw28#readme",
+  "dependencies": {
+    "bootstrap": "^5.3.1",
+    "sass": "^1.64.2"
+  }
+}
