@@ -7,7 +7,7 @@ const data = {
     planets : [],
     vehicles : [],
 }
-//Object with concrete results by types — arrays "result" from data
+//Object with concrete results by types — arrays "result" from data. Fullfills in createCards function
 const dataResults = {
     characters : [],
     planets : [],
@@ -59,7 +59,6 @@ function createCards(array, type) {
     return results;
 }
 function setNCards(start, n, array, cardContainer){
-    console.log(arguments)
     cardContainer.innerHTML = "";
     for (let i = start; i < n; i++){
         if(array[i]){
@@ -70,6 +69,8 @@ function setNCards(start, n, array, cardContainer){
 function createPagination(count, elPerPage, cardContainer, type){
     const paginationNumber = Math.ceil(count/elPerPage);
     const pagination = document.querySelector(`.${type}Container + [aria-label="Page navigation"]`).children[0];
+    
+    cardContainer.dataset.pagecount = paginationNumber;
     pagination.setAttribute('data-type', type);
     pagination.innerHTML = `<li class="page-item">
                                     <span class="btn btn-dark disabled" aria-hidden="true" data-currentPage="1" aria-label="previous">&laquo;</span>
@@ -84,7 +85,7 @@ function createPagination(count, elPerPage, cardContainer, type){
     
 }
 function processPagination(e){
-    if (e.target){
+    if (e.target && !(e.target.querySelector('.disabled'))){
         const button = e.target;
         const buttonType = button.ariaLabel;
         const buttonContainer = e.target.parentNode.parentNode;
@@ -93,21 +94,21 @@ function processPagination(e){
         const buttonNext = buttonContainer.querySelector("[aria-label='next']");
         const currentPageNum = buttonPrev.dataset.currentpage;
         const currentButton = buttonContainer.querySelector(`[aria-label='${currentPageNum}']`);
+        const cardContainer = document.querySelector(`#${type}Container`);
+        const pagesCount = cardContainer.dataset.pagecount;
         switch(buttonType){
             case 'previous':
-                
                 const buttonNumPrev = parseInt(currentButton.ariaLabel)-1;
                 const previousButton = buttonContainer.querySelector(`[aria-label='${buttonNumPrev }']`);
                 const startPos = buttonNumPrev  * cardsPerPage - cardsPerPage;
                 const endPosition = startPos + cardsPerPage;
-                const cardContainer = document.querySelector(`#${type}Container`);
                 setNCards(startPos, endPosition, dataResults[type], cardContainer);
                 currentButton.classList.toggle('active');
                 previousButton.classList.toggle('active');
                 buttonPrev.dataset.currentpage = buttonNumPrev ;
                 if (buttonNumPrev == 1) buttonPrev.classList.toggle('disabled');
                 buttonNext.dataset.currentpage = buttonNumPrev ;
-                buttonNext.classList.toggle('disabled');
+                buttonNext.classList.remove('disabled');
                 break;
     
             case 'next':
@@ -115,12 +116,12 @@ function processPagination(e){
                 const nextButton = buttonContainer.querySelector(`[aria-label='${buttonNumNext}']`);
                 const start = buttonNumNext * cardsPerPage - cardsPerPage;
                 const end = start + cardsPerPage;
-                const container = document.querySelector(`#${type}Container`);
-                setNCards(start, end, dataResults[type], container);
+                setNCards(start, end, dataResults[type], cardContainer);
                 currentButton.classList.toggle('active');
                 nextButton.classList.toggle('active');
                 buttonPrev.dataset.currentpage = buttonNumNext;
-                if (currentButton.ariaLabel == 1) buttonPrev.classList.toggle('disabled');
+                buttonPrev.classList.remove('disabled');
+                if (buttonNumNext == pagesCount) buttonNext.classList.add('disabled')
                 buttonNext.dataset.currentpage = buttonNumNext;
                 break;
             
@@ -129,12 +130,14 @@ function processPagination(e){
                     const buttonNum = parseInt(buttonType);
                     const startPos = buttonNum * cardsPerPage - cardsPerPage;
                     const endPosition = startPos + cardsPerPage;
-                    const cardContainer = document.querySelector(`#${type}Container`);
                     setNCards(startPos, endPosition, dataResults[type], cardContainer);
                     button.classList.toggle('active');
                     currentButton.classList.toggle('active');
                     buttonPrev.dataset.currentpage = button.ariaLabel;
-                    if (buttonNum > 1) buttonPrev.classList.toggle('disabled');
+                    if (buttonNum > 1) buttonPrev.classList.remove('disabled');
+                    if (buttonNum == 1) buttonPrev.classList.add('disabled');
+                    if (buttonNum == pagesCount) buttonNext.classList.add('disabled');
+                    if (buttonNum < pagesCount) buttonNext.classList.remove('disabled');
                     buttonNext.dataset.currentpage = button.ariaLabel;
                 }
 
