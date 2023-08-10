@@ -13,6 +13,26 @@ const dataResults = {
     planets : [],
     vehicles : [],
 }
+const details = document.querySelector("#detailsContainer");
+const detailsHeader = details.querySelector('.modal-header .modal-title');
+console.log(detailsHeader)
+const detailsBody = details.querySelector('.modal-body');
+const detailsObj = {
+    container: details,
+    header: detailsHeader,
+    body: detailsBody,
+    setHeader(string){
+        this.header.innerHTML = string;
+        console.log(this.headet)
+    },
+    clearBody(){
+        this.body.innerHTML = '';
+    },
+    addToBody([...args]){
+        console.log(args)
+        args.forEach(el => this.body.appendChild(el));
+    }
+}
 const cardsPerPage = 10;
 const paginations = document.querySelectorAll('[aria-label="Page navigation"]')
 function getAll(type, array, url){
@@ -31,7 +51,8 @@ function getAll(type, array, url){
                 const cardContainer = document.querySelector(`#${type}Container`);
                 const results = createCards(array, type);
                 setNCards(0, cardsPerPage, results, cardContainer);
-                createPagination(data.count, cardsPerPage, cardContainer, type)
+                createPagination(data.count, cardsPerPage, cardContainer, type);
+                cardContainer.addEventListener('click', processContainerClick);
             }
     })
 };
@@ -43,17 +64,21 @@ function createCards(array, type) {
     });
     results = results.flat();
     results.forEach((obj, index) => {
-        obj.photo = `https://starwars-visualguide.com/assets/img/${type = type == 'people'? 'characters' : type}/${index+1}.jpg`;
+        console.log(obj.url);
+        const photoIndex = obj.url.match(/(\d+)/gm);
+        console.log(photoIndex);
+        obj.photo = `https://starwars-visualguide.com/assets/img/${type = type == 'people'? 'characters' : type}/${photoIndex}.jpg`;
         const card = `
         <div class="card"">
             <div class="py-2"><img src="${obj.photo}" class="card-img-top" onerror="this.onerror=null;this.src='img/image_not_found.png';" alt="${obj.name}"></div>
             <div class="card-body">
                 <h5 class="card-title">${obj.name}</h5>
-                <a href="#" class="btn btn-primary data-objectInfo="[${index}, ${obj.name}]"">More info</a>
+                <a href="#" type="button" data-id="moreInfoButton" data-type="${type}" data-index="${index}" class="btn btn-primary data-objectInfo="[${index}, ${obj.name}]"" data-bs-toggle="modal" data-bs-target="#detailsContainer">More info</a>
             </div>
         </div>
         `
         obj.card = card;
+        obj.index = index;
     })
     dataResults[type] = results;
     return results;
@@ -146,6 +171,40 @@ function processPagination(e){
 
 
 };
+function processContainerClick(e){
+    if (e.target.dataset.id == "moreInfoButton"){
+        const targetData = e.target.dataset;
+        const targetType = targetData.type;
+        const targetIndex = targetData.index;
+
+        switch (targetType){
+            case "characters":
+                const name = dataResults['characters'].name;
+                const height = dataResults['characters'].height;
+                const mass = dataResults['characters'].mass;
+                const hair_color = dataResults['characters'].hair_color;
+                const skin_color = dataResults['characters'].skin_color;
+                const eye_color = dataResults['characters'].eye_color;
+                const birth_year = dataResults['characters'].birth_year;
+                const gender = dataResults['characters'].gender;
+                const homeworld = dataResults['characters'].homeworld;
+                const photo = dataResults['characters'].photo;
+
+                detailsObj.setHeader(name);
+                detailsObj.clearBody();
+                detailsObj.addToBody(photo);
+                break;
+            case "vehicles":
+
+                break;
+            case "planet":
+
+                break;
+            
+        }
+        detailsBody.innerHTML = dataResults[targetType][targetIndex].card;
+    }
+}
 getAll('characters', data.characters);
 getAll('planets', data.planets);
 getAll('vehicles',data.vehicles);
